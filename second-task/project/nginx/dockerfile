@@ -12,9 +12,9 @@ COPY devops.key /etc/ssl/private/devops.key
 COPY default.conf /etc/nginx/conf.d/default.conf
 
 #Creating static pages
-RUN mkdir -p /opt/html/root/ && echo '<!DOCTYPE html><html><body>$(cat /etc/os-release)</body></html>' > /opt/html/root/static.html
+RUN mkdir -p /opt/html/root/ && echo '<!DOCTYPE html><html><body>'$(cat /etc/os-release)'</body></html>' > /opt/html/root/static.html
 
-RUN echo '<!DOCTYPE html><html><body><pre>$(env)</pre></body></html>' > /opt/html/root/index.html
+RUN echo '<!DOCTYPE html><html><body><pre>'$(env)'</pre></body></html>' > /opt/html/root/index.html
 
 #ENV DRUPAL_PATH /dp 
 
