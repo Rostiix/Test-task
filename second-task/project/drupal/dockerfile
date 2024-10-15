@@ -1,0 +1,9 @@
+FROM drupal:latest
+
+RUN apt-get update && apt-get install -y ca-certificates
+
+COPY devops.crt /usr/local/share/ca-certificates/devops.crt
+
+RUN update-ca-certificates
+
+EXPOSE 8080

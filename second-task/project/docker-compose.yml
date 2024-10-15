@@ -1,0 +1,48 @@
+services:
+ nginx:
+  build: 
+   context: ./nginx
+   args:
+    BASIC_AUTH_USER: "admin"
+  environment:
+   - PBASIC_AUTH_PASS=${PBASIC_AUTH_PASS}
+  volumes:
+   - ./html/upload:/opt/html/upload
+  ports:
+   - "8443:443"
+  depends_on:
+   - drupal
+  networks: 
+   - app-network
+
+ drupal:
+  build:
+   context: ./drupal
+  environment:
+   - DRUPAL_DB_HOST=database
+   - DRUPAL_DB_NAME=drupal
+   - DRUPAL_DB_USER=root
+   - DRUPAL_DB_PASSWORD=rootpassword
+  depends_on:
+   - database
+  networks: 
+   - app-network
+
+ database:
+  build: 
+   context: ./mariadb
+  environment:
+   - MYSQL_ROOT_PASSWORD=rootpassword
+   - MYSQL_DATABASE=drupal
+  volumes:
+   - db_data:/var/lib/mysql
+  networks: 
+   - app-network
+
+volumes:
+ db_data:
+
+networks:
+ app-network:
+  driver: bridge
+
