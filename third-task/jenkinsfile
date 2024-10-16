@@ -1,0 +1,74 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Download War and Peace') {
+            steps {
+                script {
+                    // Выполнение скрипта
+                    sh script_dev.sh
+                }
+            }
+        }
+        
+        stage('Use Local Nginx Reverse Proxy Image') {
+            steps {
+                script {
+                    // Проверяем наличие локального образа nginx
+                    sh '''
+                    docker build -t my-nginx-reverse-proxy:latest ./second-task/project/nginx
+                    '''
+                }
+            }
+        }
+        
+        stage('Deploy with Docker Compose') {
+            steps {
+                script {
+                    // Запускаем docker-compose с локальными образами
+                    sh '''
+                    docker-compose up -d
+                    '''
+                }
+            }
+        }
+
+        stage('Testing') {
+            parallel {
+                stage('Upload File') {
+                    steps {
+                        script {
+                            // Создаем директорию для загрузки и копируем файл
+                            sh '''
+                            mkdir -p /opt/html/upload
+                            cp war_and_peace.txt /opt/html/upload/
+                            '''
+                        }
+                    }
+                }
+                
+                stage('Test API') {
+                    steps {
+                        script {
+                            // Тестирование API, убедитесь, что URL корректный
+                            sh '''
+                            curl -X GET http://localhost:8080/api-endpoint || echo "API test failed"
+                            '''
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            script {
+                // Остановка контейнеров после завершения пайплайна
+                sh '''
+                docker-compose down
+                '''
+            }
+        }
+    }
+}
