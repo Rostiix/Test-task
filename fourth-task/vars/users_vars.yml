@@ -1,0 +1,4 @@
+username: "exampleUser"
+groups: ["sudo","docker"]
+ssh_key: "path/to/ssh_key.pub"
+state: "present"

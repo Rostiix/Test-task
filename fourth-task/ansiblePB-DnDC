@@ -1,0 +1,79 @@
+- name: Install Docker
+  apt:
+   name: "docker.io={{ docker_version }}"
+   state: present
+  when: ansible_os_family == "Debian"
+
+- name: Install Docker Compose
+  get_url:
+   url: "https://github.com/docker/compose/releases/download/{{ docker_compose_version }}/docker-compose-$(uname -s)-$(uname -m)"
+   state: present
+   mode: 'u+x'
+  
+- name: Remove Docker and Docker Compose
+  apt:
+   name: "docker.io"
+   state: absent
+  when: remove_docker is defined and remove_docker | bool
+  
+- name: Remove Docker Compose
+  file:
+   path: /usr/local/bin/docker-compose
+   state: absent
+  when: remove_docker_compose is defined and remove_docker_compose | bool
+  
+
+  - name: Install Docker and Docker Compose
+hosts: all
+become: true
+vars:
+docker_version: "latest" # версия Docker
+docker_compose_version: "1.29.2" # версия Docker Compose
+state: "present" # или "absent" для удаления
+
+tasks:
+- name: Install prerequisites
+apt:
+name:
+- apt-transport-https
+- ca-certificates
+- curl
+- software-properties-common
+state: present
+
+- name: Add Docker GPG key
+apt_key:
+url: "https://download.docker.com/linux/ubuntu/gpg";
+state: present
+
+- name: Add Docker APT repository 
+apt_repository:
+repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+state: present
+
+- name: Install Docker
+apt:
+name: "docker-ce{{ '=%s' | format(docker_version) if docker_version != 'latest' else '' }}"
+state: "{{ state }}"
+
+- name: Install Docker Compose
+get_url:
+url: "https://github.com/docker/compose/releases/download/{{ docker_compose_version }}/docker-compose-$(uname -s)-$(uname -m)"
+dest: /usr/local/bin/docker-compose
+mode: 'u+x'
+when: state == 'present'
+
+- name: Remove Docker and Docker Compose
+apt:
+name:
+- docker-ce
+- docker-ce-cli
+- containerd.io
+state: absent
+when: state == 'absent'
+
+- name: Remove Docker Compose
+file:
+path: /usr/local/bin/docker-compose
+state: absent
+when: state == 'absent'
