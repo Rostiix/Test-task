@@ -27,7 +27,7 @@ pipeline {
                 script {
                     // Запускаем docker-compose с локальными образами
                     sh '''
-                    docker-compose up -f ./path/to/docker-compose.yml up -d
+                    docker compose up -f ./second-task/project/docker-compose.yml -d
                     '''
                 }
             }
@@ -41,7 +41,8 @@ pipeline {
                             // Создаем директорию для загрузки и копируем файл
                             sh '''
                             mkdir -p /opt/html/upload
-                            cp war_and_peace.txt /opt/html/upload/
+                            cp somefile.txt /opt/html/upload/
+                            //add curl to download file using front
                             '''
                         }
                     }
@@ -50,7 +51,7 @@ pipeline {
                 stage('Test API') {
                     steps {
                         script {
-                            // Тестирование API, убедитесь, что URL корректный
+                            // Тестирование API
                             sh '''
                             curl -X GET http://localhost:8080/api-endpoint || echo "API test failed"
                             '''
