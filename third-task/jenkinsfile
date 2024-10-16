@@ -27,7 +27,7 @@ pipeline {
                 script {
                     // Запускаем docker-compose с локальными образами
                     sh '''
-                    docker-compose up -d
+                    docker-compose up -f ./path/to/docker-compose.yml up -d
                     '''
                 }
             }
